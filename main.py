@@ -88,23 +88,23 @@ def draw_points(screen, point_list, colour):
     """
     draw list of corners on given screen, with colour depending on whether they
     have been saved or not
-    
+
     :param screen: pygame screen
     :param point_list: list of corner positions
     :param corners_saved: boolean
     """
     for corner in point_list:
         pygame.draw.circle(surface=screen,
-                       color=colour,
-                       center=corner,
-                       radius=2)
-        
+                           color=colour,
+                           center=corner,
+                           radius=2)
+
 
 def draw_white_keys(screen, key_tops, key_bases):
     """
     draw polygons for white keys given coordinates
     the coordinates overlap
-    
+
     :param screen: pygame screen
     :param key_tops: coordinates of key tops
     :param key_bases: coordinates of key bottoms
@@ -112,16 +112,46 @@ def draw_white_keys(screen, key_tops, key_bases):
     # don't draw anything if the lists of points are not the same length
     if len(key_tops) != len(key_bases):
         return None
-    
+
     for i in range(len(key_tops) - 1):
         pygame.draw.polygon(surface=screen,
-                            color="azure",
+                            color="blue",
                             points=(
                                 key_tops[i],
                                 key_tops[i+1],
-                                key_bases[i],
-                                key_bases[i+1]
-                            ))
+                                key_bases[i+1],
+                                key_bases[i]
+                            ),
+                            width=5)
+
+
+def draw_black_keys(screen, key_tops, key_bases):
+    """
+    draw polygons for black keys given coordinates
+    the coordinates DO NOT overlap
+
+    :param screen: pygame screen
+    :param key_tops: coordinates of key tops
+    :param key_bases: coordinates of key bottoms
+    """
+    # don't draw anything if the lists of points are not the same length
+    if len(key_tops) != len(key_bases):
+        return None
+
+    for i in range(0, len(key_tops) - 1, 2):
+        # if no black key, don't draw
+        if key_tops[i] is None:
+            continue
+        else:
+            pygame.draw.polygon(surface=screen,
+                                color="aqua",
+                                points=(
+                                    key_tops[i],
+                                    key_tops[i+1],
+                                    key_bases[i+1],
+                                    key_bases[i]
+                                ),
+                                width=5)
 
 
 def main():
@@ -148,7 +178,7 @@ def main():
     corner_colour = {True: "green", False: "red"}
 
     # keyboard points
-    instrument_top = InstrumentTop([], 14)
+    instrument_top = InstrumentTop([], 7)
     instrument_front = InstrumentFront([], [])
     white_key_tops = []
     white_key_bases = []
@@ -168,29 +198,26 @@ def main():
     # 2 -> running
     state = 0
 
-
     # -------------- PROCESSING INIT --------------
 
     # Initialize mediapipe hand models
     hands_top, hands_front = initialize_mediapipe_hands(2)
 
-
-    # Initialize the camera. 
+    # Initialize the camera.
     top_cap = video.Video(0)
-    front_cap =video.Video(1)
+    front_cap = video.Video(1)
 
-
-    #Set resolution
-    #cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-    #cap2.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    #cap2.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    # Set resolution
+    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    # cap2.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    # cap2.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
     total_time = 0
     total_frames = 0
 
     # -------------------------------------------
-    
+
     # --------------- EVENT LOOP ----------------
     while running:
         start = time.time()
@@ -245,19 +272,19 @@ def main():
 
             # draw points to indicate corners
             draw_points(screen=pygame_screen,
-                     point_list=corner_positions, 
-                     colour=corner_colour[corners_saved])
-            
+                        point_list=corner_positions,
+                        colour=corner_colour[corners_saved])
+
         elif state == 1 and front_cap.isOpened():
             draw_frame(screen=pygame_screen, frame=front_frame)
 
             draw_points(screen=pygame_screen,
-                     point_list=endpoint_positions, 
-                     colour=corner_colour[corners_saved])
+                        point_list=endpoint_positions,
+                        colour=corner_colour[corners_saved])
 
         elif state == 2 and top_cap.isOpened() and front_cap.isOpened():
-            
-        # --------------- OPENCV LOOP ----------------
+
+            # --------------- OPENCV LOOP ----------------
 
             if top_cap.isOpened():
                 # Run processing for hand keypoints
@@ -268,7 +295,7 @@ def main():
                 # cv2.imshow("Top Frame", top_frame)
 
                 # convert and draw frame in pygame4
-                draw_frame(screen=pygame_screen, frame=top_frame)
+                # draw_frame(screen=pygame_screen, frame=top_frame)
 
             # if front_cap.isOpened():
             #     front_frame = front_cap.read()
@@ -282,12 +309,14 @@ def main():
             #     front_frame = draw_hand_points(front_frame, front_hand_keypoints)
 
             #     cv2.imshow("Front Frame", front_frame)
-        
+
         # draw piano white keys
-        print(white_key_tops)
-        # draw_white_keys(screen=pygame_screen,
-        #                 key_tops=white_key_tops,
-        #                 key_bases=white_key_bases)
+        draw_white_keys(screen=pygame_screen,
+                        key_tops=white_key_tops,
+                        key_bases=white_key_bases)
+        draw_black_keys(screen=pygame_screen,
+                        key_tops=black_key_tops,
+                        key_bases=black_key_bases)
 
         # if not top_cap.isOpened() and not front_cap.isOpened():
         if not top_cap.isOpened():
