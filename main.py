@@ -292,6 +292,7 @@ def main():
 
             # --------------- OPENCV LOOP ----------------
 
+            # Process top camera
             if top_cap.isOpened():
                 # Run processing for hand keypoints
                 top_hand_keypoints = process_frame(top_frame, hands_top)
@@ -302,6 +303,7 @@ def main():
                 # convert and draw frame in pygame4
                 draw_frame(screen=pygame_screen, frame=top_frame, start_point=(0, 0), width=window_width//2, height=window_height//2)
 
+            # Process front camera
             if front_cap.isOpened():
                 front_frame = front_cap.read()
 
@@ -318,6 +320,11 @@ def main():
 
                 # convert and draw frame in pygame4
                 draw_frame(screen=pygame_screen, frame=front_frame, start_point=(0, window_height//2), width=window_width//2, height=window_height//2)
+
+            # Process results of both cameras and play music
+            # if top_cap.isOpened() and front_cap.isOpened() and len(top_hand_keypoints) > 0 and len(front_hand_keypoints) > 0:
+
+
         
         # draw piano white keys
         draw_white_keys(screen=pygame_screen,

@@ -150,7 +150,7 @@ class InstrumentFront():
         :type fingers: list[list[float]]
         """
 
-        return [self.is_pressed(finger, self.table_distance_threshold) for finger in fingers]
+        return [finger for finger in fingers if self.is_pressed(finger, self.table_distance_threshold)]
 
 
     def set_endpoints(self, endpoint_list):
