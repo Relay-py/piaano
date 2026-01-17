@@ -4,6 +4,7 @@ import numpy as np
 import mediapipe as mp
 from dotenv import load_dotenv
 import time
+import video
 
 
 def initialize_mediapipe_hands(num_frames: int):
@@ -38,29 +39,33 @@ def main():
     top_ip = os.environ.get('TOP_IP')
     top_port = os.environ.get('TOP_PORT')
     top_url = f"http://{top_ip}:{top_port}/video"
-    top_cap = cv2.VideoCapture(top_url)
+    top_cap = video.Video(top_url)
 
     front_ip = os.environ.get('FRONT_IP')
     front_port = os.environ.get('FRONT_PORT')
     front_url = f"http://{front_ip}:{front_port}/video"
-    front_cap = cv2.VideoCapture(front_url)
+    front_cap = video.Video(front_url)
 
 
     while True:
         if top_cap.isOpened():
-            _, top_frame = top_cap.read()
+            top_frame = top_cap.read()
 
             if top_frame is None:
                 continue
 
             cv2.imshow("Top Frame", top_frame)
 
+        if front_cap.isOpened():
+            front_frame = front_cap.read()
+
+            if front_frame is None:
+                continue
+
+            cv2.imshow("Front Frame", front_frame)
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-
-
-
-        
 
 
 if __name__ == "__main__":
