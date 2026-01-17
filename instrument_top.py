@@ -2,7 +2,7 @@ import numpy as np
 
 
 class InstrumentTop():
-    def __init__(self,piano_corners,num_white_keys):
+    def __init__(self, piano_corners, num_white_keys):
         self.piano_corners = piano_corners
         self.num_keys = num_white_keys
     
@@ -60,6 +60,8 @@ class InstrumentTop():
     
 
 
+    
+    
     
    
 

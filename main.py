@@ -7,6 +7,8 @@ import time
 import video
 import pygame
 
+from instrument_front import InstrumentFront
+
 
 def initialize_mediapipe_hands(num_frames: int):
     # Initializes mediapipe hands models
@@ -138,6 +140,8 @@ def main():
     # front_url = f"http://{front_ip}:{front_port}/video"
     # front_cap = video.Video(front_url)
 
+    instrument_front = InstrumentFront([])
+
     total_time = 0
     total_frames = 0
 
@@ -172,7 +176,12 @@ def main():
 
             top_frame = draw_hand_points(top_frame, top_hand_keypoints)
 
+            top_frame = instrument_front.find_table(top_frame)
+
             # cv2.imshow("Top Frame", top_frame)
+
+            # convert and draw frame in pygame
+            draw_frame(screen=pygame_screen, frame=top_frame)
 
             # convert and draw frame in pygame
             draw_frame(screen=pygame_screen, frame=top_frame)
