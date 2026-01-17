@@ -1,7 +1,7 @@
 import numpy as np
-from math_functions import in_quadrilateral
+from math_functions import in_quadrilateral , is_right_of_line , get_white_note
 
-class InstrumentTop():
+class InstrumentTop:
     def __init__(self,piano_corners,num_white_keys):
         self.piano_corners = piano_corners
         self.num_keys = num_white_keys
@@ -59,28 +59,35 @@ class InstrumentTop():
         return (lines_top_point ,lines_bottom_point,black_keys_top_point , black_keys_bottom_point)
     
 
-    # def get_notes(self , fingers  , lines_top_point ,lines_bottom_point,black_keys_top_point , black_keys_bottom_point) :
-    #     notes = []
+    def get_notes(self , fingers  , lines_top_point ,lines_bottom_point,black_keys_top_point , black_keys_bottom_point) :
+        notes = []
 
 
-    #     for finger in fingers:
-    #         low = 0
-    #         high = len(lines_bottom_point)-1
-    #         while (low <= high) :
-    #             mid = low + (high - low) / 2
-    #             if in_quadrilateral(finger ,lines_top_point[mid] ,lines_top_point[mid+1] , lines_bottom_point[mid] ,lines_bottom_point[mid+1]) :
-    #                 if in_quadrilateral(finger ,black_keys_top_point[2*mid] ,black_keys_top_point[2*mid+1] , black_keys_bottom_point[2*mid] ,black_keys_bottom_point[2*mid+1]):
-    #                     notes.append(mid , 'black' )
-    #                 else:
-    #                     notes.append(mid , 'black' )
-    #                 break
+        for finger in fingers:
+            low = 0
+            high = len(lines_bottom_point)-1
+            while (low <= high) :
+                mid = low + (high - low) / 2
+                if in_quadrilateral(finger, lines_top_point[mid], lines_top_point[mid+1], lines_bottom_point[mid], lines_bottom_point[mid+1]) :
+                    if in_quadrilateral(finger, black_keys_top_point[2*mid], black_keys_top_point[2*mid+1], black_keys_bottom_point[2*mid], black_keys_bottom_point[2*mid+1]):
+                        notes.append(get_white_note(mid)-1)
+                    
+                    elif in_quadrilateral(finger, black_keys_top_point[2*mid+2], black_keys_top_point[2*mid+3], black_keys_bottom_point[2*mid+2], black_keys_bottom_point[2*mid+3]):
+                        notes.append(get_white_note(mid)+1)
+
+                    else:
+                        notes.append(get_white_note(mid))
+                    break
             
-    #             if is_right_quadrelateral() :
+                if is_right_of_line(finger ,lines_top_point[mid],lines_bottom_point[mid] ) :
+                    low = mid + 1
 
-    #                 low = mid + 1
+                else:
+                    high = mid - 1
 
-    #             else
-    #                 high = mid - 1
+
+        
+
 
 
 
