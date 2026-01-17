@@ -35,15 +35,15 @@ def main():
 
     hands_top, hands_front = initialize_mediapipe_hands(2)
 
-    top_cap = cv2.VideoCapture(0)
-    top_ip = os.environ.get('FRONT_IP')
-    top_port = os.environ.get('PORT')
+    top_ip = os.environ.get('TOP_IP')
+    top_port = os.environ.get('TOP_PORT')
     top_url = f"http://{top_ip}:{top_port}/video"
+    top_cap = cv2.VideoCapture(top_url)
 
-    front_cap = cv2.VideoCapture(0)
     front_ip = os.environ.get('FRONT_IP')
-    front_port = os.environ.get('PORT')
+    front_port = os.environ.get('FRONT_PORT')
     front_url = f"http://{front_ip}:{front_port}/video"
+    front_cap = cv2.VideoCapture(front_url)
 
 
     while True:
