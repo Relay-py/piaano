@@ -8,6 +8,8 @@ import video
 import pygame
 from instrument_top import InstrumentTop
 
+from instrument_front import InstrumentFront
+
 
 def initialize_mediapipe_hands(num_frames: int):
     # Initializes mediapipe hands models
@@ -170,6 +172,7 @@ def main():
     # front_url = f"http://{front_ip}:{front_port}/video"
     # front_cap = video.Video(front_url)
 
+    instrument_front = InstrumentFront([])
 
     total_time = 0
     total_frames = 0
@@ -199,6 +202,8 @@ def main():
                     # get back all key corners
                     white_key_tops, white_key_bases, black_key_tops, black_key_bases = instrument_top.get_all_keys_points()
 
+        # --------------- OPENCV LOOP ----------------
+
         if top_cap.isOpened():
             top_frame = top_cap.read()
 
@@ -209,6 +214,8 @@ def main():
             top_hand_keypoints = process_frame(top_frame, hands_top)
 
             top_frame = draw_hand_points(top_frame, top_hand_keypoints)
+
+            top_frame = instrument_front.find_table(top_frame)
 
             # cv2.imshow("Top Frame", top_frame)
 
