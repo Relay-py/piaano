@@ -4,9 +4,10 @@ from math_functions import distance_to_line
 
 
 class InstrumentFront():
-    def __init__(self, hand_keypoints, table_endpoints):
+    def __init__(self, hand_keypoints, table_endpoints, table_distance_threshold):
         self.hand_keypoints = hand_keypoints
         self.table_endpoints = table_endpoints
+        self.table_distance_threshold = table_distance_threshold
 
 
     def get_average_contour_y(self, contour):
@@ -132,7 +133,7 @@ class InstrumentFront():
         # to be considered pressed
         # Pressing is determined by a threshold
 
-        if self.keypoints is None:
+        if self.table_endpoints is None or len(self.table_endpoints) != 2:
             return False
                 
         # Calculate distance to the table line
@@ -140,6 +141,17 @@ class InstrumentFront():
 
         return dist <= threshold
     
+
+    def get_pressed_fingers(self, fingers: list[list[float]]):
+        """
+        Returns a list of pressed fingers
+        
+        :param fingers: list of fingers
+        :type fingers: list[list[float]]
+        """
+
+        return [self.is_pressed(finger, self.table_distance_threshold) for finger in fingers]
+
 
     def set_endpoints(self, endpoint_list):
         """

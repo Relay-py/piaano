@@ -182,8 +182,8 @@ def main():
     corner_colour = {True: "green", False: "red"}
 
     # keyboard points
-    instrument_top = InstrumentTop([], 7)
-    instrument_front = InstrumentFront([], [])
+    instrument_top = InstrumentTop([], num_white_keys=7)
+    instrument_front = InstrumentFront([], [], table_distance_threshold=10)
     white_key_tops = []
     white_key_bases = []
     black_key_tops = []
@@ -313,6 +313,8 @@ def main():
 
                 # Draw hand points
                 front_frame = draw_hand_points(front_frame, front_hand_keypoints)
+                
+                pressed_fingers = instrument_front.get_pressed_fingers(front_hand_keypoints)
 
                 # convert and draw frame in pygame4
                 draw_frame(screen=pygame_screen, frame=front_frame, start_point=(0, window_height//2), width=window_width//2, height=window_height//2)
