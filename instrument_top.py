@@ -24,26 +24,22 @@ class InstrumentTop:
 
         '''
         
-        lines_top_point = [(self.piano_corners[1]-self.piano_corners[0])*i+self.piano_corners[0] for i in range(self.num_keys+1)]
-        lines_bottom_point = [(self.piano_corners[3]-self.piano_corners[2])*i+self.piano_corners[2]  for i in range(self.num_keys+1)]
-        lines_top_point_draw =[]
+        lines_top_point = [(self.piano_corners[1]-self.piano_corners[0])*i/self.num_keys +self.piano_corners[0] for i in range(self.num_keys+1)]
+        lines_bottom_point = [(self.piano_corners[3]-self.piano_corners[2])*i/self.num_keys +self.piano_corners[2]  for i in range(self.num_keys+1)]
         black_keys_top_point =[]
         black_keys_bottom_point =[]
 
         for i in range(len(lines_top_point)):
-            if i % 3 == 0 or i % 7 == 0:
-                lines_top_point_draw.append(lines_top_point[i])
+            if i % 7 == 3 or i % 7 == 0:
                 black_keys_top_point.append(None)
                 black_keys_bottom_point.append(None)
                 black_keys_top_point.append(None)
                 black_keys_bottom_point.append(None)
 
             else: 
-                value = ((lines_top_point[i] - lines_bottom_point[i]) * 3 / 5) + lines_bottom_point[i]
-                previous = ((lines_top_point[i-1] - lines_bottom_point[i-1]) * 3 / 5) + lines_bottom_point[i-1]
-                next  = ((lines_top_point[i+1] - lines_bottom_point[i-1]) * 3 / 5) + lines_bottom_point[i+1]
-
-                lines_top_point_draw.append(((lines_top_point[i] - lines_bottom_point[i]) * 3 / 5) + lines_bottom_point[i])
+                value = ((lines_top_point[i] - lines_bottom_point[i]) * 3 / 10) + lines_bottom_point[i]
+                previous = ((lines_top_point[i-1] - lines_bottom_point[i-1]) * 3 / 10) + lines_bottom_point[i-1]
+                next  = ((lines_top_point[i+1] - lines_bottom_point[i-1]) * 3 / 10) + lines_bottom_point[i+1]
 
                 first_top_corner = (lines_top_point[i]-lines_top_point[i-1])/4 + lines_top_point[i-1]
                 second_top_corner = (lines_top_point[i+1]-lines_top_point[i])/4 + lines_top_point[i]
@@ -119,7 +115,14 @@ class InstrumentTop:
 
 
 
-
+if  __name__=="__main__":
+    instrument = InstrumentTop(None,7)
+    l1 = [0,0]
+    l2 = [0,7]
+    l3 = [7,0]
+    l4 = [7,7]
+    instrument.set_corners([l1,l2,l3,l4])
+    print(instrument.get_all_keys_points()[3])
 
     
     
