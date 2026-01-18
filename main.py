@@ -9,6 +9,7 @@ import pygame
 from instrument_top import InstrumentTop
 from instrument_front import InstrumentFront
 from instrument import Instrument
+from draw_functions import SmokeParticle
 import draw_functions
 
 
@@ -133,6 +134,10 @@ def main():
     total_time = 0
     total_frames = 0
 
+    # list of particles that will appear when a key is played
+    particles = []
+
+
     # -------------------------------------------
 
     # --------------- EVENT LOOP ----------------
@@ -249,6 +254,21 @@ def main():
                 print(corner_positions)
                 print("Playing notes!", playing_notes)
                 print("----------------")
+
+
+                #set up all the smoke for curent playing notes 
+                for note_cordinate in playing_notes[1]:
+                    for _ in range(30):
+                        particles.append(SmokeParticle(note_cordinate[0], note_cordinate[1]))
+
+            # Update all particles and remove dead ones
+            for p in particles[:]:
+                p.update()
+                if p.life <= 0:
+                    particles.remove(p)
+
+            for p in particles:
+                p.draw(pygame_screen)
 
 
         if cv2.waitKey(1) & 0xFF == ord('q'):

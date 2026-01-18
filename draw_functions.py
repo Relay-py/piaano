@@ -1,5 +1,6 @@
 import pygame
 import cv2
+import random
 
 
 def draw_hand_points(frame, hand_keypoints):
@@ -121,3 +122,38 @@ def draw_tabletop(screen, left, right, outline_colour, outline_width):
                      start_pos=left,
                      end_pos=right,
                      width=outline_width)
+    
+
+
+
+class SmokeParticle:
+    '''
+    Docstring for SmokeParticle
+
+    class to draw particles and make them fade away when we we press a specific key
+
+    '''
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.radius = random.randint(4, 8)
+        self.life = 255  
+        self.vx = random.uniform(-0.5, 0.5)
+        self.vy = random.uniform(-3, -1)
+        self.growth = 0.12 
+
+    def update(self):
+        self.x += self.vx
+        self.y += self.vy
+        self.radius += self.growth
+        self.life -= 2  
+
+
+    def draw(self, surface):
+        if self.life > 0:
+            s = pygame.Surface((int(self.radius*2), int(self.radius*2)), pygame.SRCALPHA)
+
+            pygame.draw.circle(s, (150, 150, 150, self.life), (self.radius, self.radius), int(self.radius))
+            
+            surface.blit(s, (self.x - self.radius, self.y - self.radius))
+

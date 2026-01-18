@@ -81,6 +81,7 @@ class InstrumentTop:
 
     def get_notes(self, fingers, lines_top_point, lines_bottom_point, black_keys_top_point, black_keys_bottom_point) :
         notes = []
+        mid_cordinates_played_note = []
 
 
         for finger in fingers:
@@ -92,12 +93,16 @@ class InstrumentTop:
                 if in_quadrilateral(finger, lines_top_point[mid], lines_top_point[mid+1], lines_bottom_point[mid], lines_bottom_point[mid+1]) :
                     if in_quadrilateral(finger, black_keys_top_point[2*mid], black_keys_top_point[2*mid+1], black_keys_bottom_point[2*mid], black_keys_bottom_point[2*mid+1]):
                         notes.append(get_white_note(mid)-1)
+                        mid_cordinates_played_note.append((black_keys_top_point[2*mid]+black_keys_top_point[2*mid+1])/2)
+
                     
                     elif in_quadrilateral(finger, black_keys_top_point[2*mid+2], black_keys_top_point[2*mid+3], black_keys_bottom_point[2*mid+2], black_keys_bottom_point[2*mid+3]):
                         notes.append(get_white_note(mid)+1)
+                        mid_cordinates_played_note.append((black_keys_top_point[2*mid+2]+black_keys_top_point[2*mid+3])/2)
 
                     else:
                         notes.append(get_white_note(mid))
+                        mid_cordinates_played_note.append((lines_top_point[mid]+lines_top_point[mid+1])/2)
                     break
                 # print("is in quadrilateral value",in_quadrilateral(finger, lines_top_point[mid], lines_top_point[mid+1], lines_bottom_point[mid], lines_bottom_point[mid+1]))
                 # print(f"the top point coordinates are {lines_top_point[mid]}")
@@ -113,7 +118,7 @@ class InstrumentTop:
 
             # log(notes)
 
-        return notes
+        return notes , mid_cordinates_played_note
     
     
 
