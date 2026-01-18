@@ -1,5 +1,5 @@
 import numpy as np
-from math_functions import in_quadrilateral , is_right_of_line , get_white_note
+from math_functions import in_quadrilateral , is_right_of_line , get_white_note , distance
 from log import log
 
 class InstrumentTop:
@@ -81,6 +81,8 @@ class InstrumentTop:
     def get_notes(self, fingers, lines_top_point, lines_bottom_point, black_keys_top_point, black_keys_bottom_point) :
         notes = []
         mid_cordinates_played_note = []
+        width_played_key = []
+        top_coner_left_x_coordinate = []
 
 
         for finger in fingers:
@@ -94,15 +96,20 @@ class InstrumentTop:
                     if in_quadrilateral(finger, black_keys_top_point[2*mid], black_keys_top_point[2*mid+1], black_keys_bottom_point[2*mid], black_keys_bottom_point[2*mid+1]):
                         notes.append(get_white_note(mid)-1)
                         mid_cordinates_played_note.append((black_keys_top_point[2*mid]+black_keys_top_point[2*mid+1])/2)
-
+                        width_played_key.append(distance(black_keys_top_point[2*mid], black_keys_top_point[2*mid+1]))
+                        top_coner_left_x_coordinate.append(black_keys_top_point[2*mid][0])
                     
                     elif in_quadrilateral(finger, black_keys_top_point[2*mid+2], black_keys_top_point[2*mid+3], black_keys_bottom_point[2*mid+2], black_keys_bottom_point[2*mid+3]):
                         notes.append(get_white_note(mid)+1)
                         mid_cordinates_played_note.append((black_keys_top_point[2*mid+2]+black_keys_top_point[2*mid+3])/2)
+                        width_played_key.append(distance(black_keys_top_point[2*mid+2], black_keys_top_point[2*mid+3]))
+                        top_coner_left_x_coordinate.append(black_keys_top_point[2*mid+2][0])
 
                     else:
                         notes.append(get_white_note(mid))
                         mid_cordinates_played_note.append((lines_top_point[mid]+lines_top_point[mid+1])/2)
+                        width_played_key.append(distance(lines_top_point[mid], lines_top_point[mid+1]))
+                        top_coner_left_x_coordinate.append(lines_top_point[mid][0])
                     break
                 # print("is in quadrilateral value",in_quadrilateral(finger, lines_top_point[mid], lines_top_point[mid+1], lines_bottom_point[mid], lines_bottom_point[mid+1]))
                 # print(f"the top point coordinates are {lines_top_point[mid]}")
@@ -117,7 +124,7 @@ class InstrumentTop:
                     high = mid - 1
 
         print(mid_cordinates_played_note, type(mid_cordinates_played_note))
-        return set(notes) , mid_cordinates_played_note
+        return set(notes) , mid_cordinates_played_note , width_played_key , top_coner_left_x_coordinate
     
     
     def index_to_midi(self, index):

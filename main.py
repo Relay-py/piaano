@@ -9,8 +9,9 @@ import pygame
 from instrument_top import InstrumentTop
 from instrument_front import InstrumentFront
 from instrument import Instrument
-from draw_functions import SmokeParticle
+from NoteRise import RisingNote, Spark
 import draw_functions
+import random
 
 
 def initialize_mediapipe_hands(num_frames: int):
@@ -155,6 +156,8 @@ def main():
 
     # list of particles that will appear when a key is played
     particles = []
+    active_rising_notes = {} 
+    finished_notes = []
 
 
     # -------------------------------------------
@@ -291,21 +294,52 @@ def main():
                 print("----------------")
 
                 play_notes(piano, playing_midi_notes)
-                #set up all the smoke for curent playing notes 
-                for note_cordinate in playing_notes[1]:
-                    for _ in range(30):
-                        particles.append(SmokeParticle(note_cordinate[0] * window_width // 2, note_cordinate[1] * window_height // 2))
+                #set up all the smoke for curent playing notes
+                for note_idx, coord , width , x_coord in zip(playing_notes[0], playing_notes[1] ,playing_notes[2],playing_notes[3]):
+                    midi_id = instrument_top.index_to_midi(note_idx)
+                    # Use coordinate relative to top-left camera view
+                    px_x = coord[0] * window_width // 2
+                    px_y = coord[1] * window_height // 2
+                    px_w =  width * window_width // 2
+                    px_x_top_left = x_coord * window_width // 2
+
+                    if midi_id not in active_rising_notes:
+
+                        color = random.choice([(0, 255, 150), (0, 220, 255), (255, 100, 255), (255, 255, 100)])
+                        active_rising_notes[midi_id] = RisingNote(px_x_top_left, px_y, px_w, color)
+                    
+                    # Add sparkles at the key point every frame the finger is down
+                    for _ in range(3):
+                        particles.append(Spark(px_x, px_y, active_rising_notes[midi_id].color))
+
+                # 2. Transition notes to "Finished" once finger is lifted
+                for m_id in list(active_rising_notes.keys()):
+                    if m_id not in playing_midi_notes:
+                        note_obj = active_rising_notes.pop(m_id)
+                        note_obj.is_active = False
+                        finished_notes.append(note_obj)
+            
             else:
                 piano.remove_all_notes()
+                for m_id, note_obj in active_rising_notes.items():
+                    note_obj.is_active = False
+                    finished_notes.append(note_obj)
+                active_rising_notes.clear()
 
             # Update all particles and remove dead ones
             for p in particles[:]:
                 p.update()
-                if p.life <= 0:
-                    particles.remove(p)
-
-            for p in particles:
                 p.draw(pygame_screen)
+                if p.life <= 0: particles.remove(p)
+
+            # Draw Notes
+            all_visible_notes = finished_notes + list(active_rising_notes.values())
+            for note in all_visible_notes[:]:
+                note.update()
+                note.draw(pygame_screen)
+                # Cleanup notes that flew off the top
+                if note.y + note.h < -100:
+                    if note in finished_notes: finished_notes.remove(note)
 
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
