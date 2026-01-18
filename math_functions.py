@@ -63,7 +63,8 @@ def in_quadrilateral(p, a, b, c, d):
     
     quadrilateral_area = triangle_area(a, b, c) + triangle_area(b, d, c)
     point_triangle_sum = triangle_area(a, b, p) + triangle_area(a, p, c) + triangle_area(c, p, d) + triangle_area(d, p, b)
-    return abs(quadrilateral_area - point_triangle_sum) < 0.1
+    print(quadrilateral_area,point_triangle_sum)
+    return abs(quadrilateral_area - point_triangle_sum) < 0.001
 
 
 

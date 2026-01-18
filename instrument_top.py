@@ -74,7 +74,7 @@ class InstrumentTop:
         # native python list of corner positions
         sorted = [left[0], right[0], left[1], right[1]]
         # convert to numpy
-        sorted_np = np.array(sorted,dtype=('int', 'int'))
+        sorted_np = np.array(sorted,dtype=('float', 'float'))
 
         self.piano_corners = sorted_np
     
@@ -90,6 +90,7 @@ class InstrumentTop:
             high = self.num_keys-1
             while (low <= high) :
                 mid = low + (high - low) // 2
+                # print(lines_top_point[mid], lines_top_point[mid+1], lines_bottom_point[mid], lines_bottom_point[mid+1])
                 if in_quadrilateral(finger, lines_top_point[mid], lines_top_point[mid+1], lines_bottom_point[mid], lines_bottom_point[mid+1]) :
                     if in_quadrilateral(finger, black_keys_top_point[2*mid], black_keys_top_point[2*mid+1], black_keys_bottom_point[2*mid], black_keys_bottom_point[2*mid+1]):
                         notes.append(get_white_note(mid)-1)
@@ -142,9 +143,9 @@ def test(corners, fingers ):
 if  __name__=="__main__":
     instrument = InstrumentTop(None,7)
 
-    pressed_fingers = [[1159.039077758789, 467.6806175708771], [1197.0160675048828, 476.21673703193665], [1227.330093383789, 467.09356784820557]]
-    piano_corners = [(509, 23), (521, 594), (1238, 27), (1271, 567)]
-    test(piano_corners , pressed_fingers)
+    Pressed =  [np.array([0.5354315638542175, 0.7174786329269409])]#, np.array([0.5170403122901917, 0.7350524663925171]), np.array([0.5439160466194153, 0.742214560508728]), np.array([0.5629692673683167, 0.7436327934265137]), np.array([0.578137993812561, 0.7272791266441345])
+    Corner  = [np.array([0.27109375, 0.55833333]), np.array([0.28046875, 0.03888889]), np.array([0.66015625, 0.56388889]), np.array([0.6609375 , 0.05555556])]
+    test(Corner , Pressed)
     # pressed_fingers = [[1153.8107299804688, 466.87437772750854], [1168.2228469848633, 466.8203043937683]]
     # piano_corners = [(509, 23), (521, 594), (1238, 27), (1271, 567)]
     # test(piano_corners , pressed_fingers)
