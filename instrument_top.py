@@ -132,7 +132,10 @@ class InstrumentTop:
         Makes lowest note = middle C (for now)
         """
 
-        return index + 48
+        return index + 60
+        
+
+
 
 
 
