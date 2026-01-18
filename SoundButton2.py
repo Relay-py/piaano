@@ -48,6 +48,12 @@ class SoundButton:
         final_text = self.font.render(self.text_str, True, text_color)
         screen.blit(final_text, self.text_rect)
 
+    def collides(self, position):
+        """
+        returns whether a point is within the button
+        """
+        return self.rect.collidepoint(position)
+
 def draw_gradient_background(screen, width, height):
     color_top = (10, 10, 20)      # Deep Midnight
     color_bottom = (30, 40, 70)   # Slate Blue
@@ -57,6 +63,7 @@ def draw_gradient_background(screen, width, height):
         g = int(color_top[1] + (color_bottom[1] - color_top[1]) * progress)
         b = int(color_top[2] + (color_bottom[2] - color_top[2]) * progress)
         pygame.draw.line(screen, (r, g, b), (0, y), (width, y))
+
 
 def main():
     pygame.init()
