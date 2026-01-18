@@ -13,6 +13,7 @@ from instrument import Instrument
 from NoteRise import RisingNote, Spark
 import draw_functions
 import random
+from log import log
 
 
 def initialize_mediapipe_hands(num_frames: int):
@@ -43,29 +44,32 @@ def process_frame(frame, hand_model):
 
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     hand_results = hand_model.process(rgb_frame)
-    height, width = frame.shape[:2]
 
-    hand_keypoints = []
-    if hand_results.multi_hand_landmarks:
-        # Pick out the first and second hands
-        for i in range(min(2, len(hand_results.multi_hand_landmarks))):
-            hand_landmarks = hand_results.multi_hand_landmarks[i]
+    left_hand_keypoints = []
+    right_hand_keypoints = []
 
-            # Define points for each finger
-            thumb = hand_landmarks.landmark[4]
-            index = hand_landmarks.landmark[8]
-            middle = hand_landmarks.landmark[12]
-            ring = hand_landmarks.landmark[16]
-            pinky = hand_landmarks.landmark[20]
+    if hand_results.multi_hand_landmarks and hand_results.multi_handedness:
+        for landmarks, handedness in zip(
+            hand_results.multi_hand_landmarks,
+            hand_results.multi_handedness
+        ):
+            # get handedness label ("Left" or "Right")
+            label = handedness.classification[0].label
 
-            # Unnormalize hand points
-            hand_keypoints.append([thumb.x, thumb.y])
-            hand_keypoints.append([index.x, index.y])
-            hand_keypoints.append([middle.x, middle.y])
-            hand_keypoints.append([ring.x, ring.y])
-            hand_keypoints.append([pinky.x, pinky.y])
+            # fingertip indices
+            finger_indices = [4, 8, 12, 16, 20]
 
-    return hand_keypoints
+            points = [
+                [landmarks.landmark[i].x, landmarks.landmark[i].y]
+                for i in finger_indices
+            ]
+
+            if label == "Left":
+                left_hand_keypoints = points
+            elif label == "Right":
+                right_hand_keypoints = points
+
+    return left_hand_keypoints, right_hand_keypoints
 
 
 def play_notes(piano: Instrument, playing_notes) -> None:
@@ -143,7 +147,12 @@ def main():
 
     # Initialize instruments
     instrument_top = InstrumentTop([], num_white_keys=7)
-    instrument_front = InstrumentFront([], [], table_distance_threshold=0.02)
+    instrument_front = InstrumentFront([], [], table_distance_threshold=0.015)
+
+    soundfont_path = "Soundfont.sf2"
+    piano = Instrument(soundfont_path=soundfont_path, preset=0, volume=100)
+    piano.start()
+
 
     # detect window height and width
     window_width, window_height = pygame.display.get_surface().get_size()
@@ -252,11 +261,11 @@ def main():
             # Process top camera
             if top_cap.isOpened():
                 # Run processing for hand keypoints
-                top_hand_keypoints = process_frame(top_frame, hands_top)
-
+                top_hand_keypoints_left, top_hand_keypoints_right = process_frame(top_frame, hands_top)
+                
                 # Draw hand points
-                top_frame = draw_functions.draw_hand_points(
-                    top_frame, top_hand_keypoints)
+                top_frame = draw_functions.draw_hand_points(top_frame, top_hand_keypoints_left)
+                top_frame = draw_functions.draw_hand_points(top_frame, top_hand_keypoints_right)
 
                 # convert and draw frame in pygame4
                 new_width = window_width // 2
@@ -278,28 +287,30 @@ def main():
                     continue
 
                 # Run processing for hand keypoints
-                front_hand_keypoints = process_frame(front_frame, hands_front)
+                front_hand_keypoints_left, front_hand_keypoints_right = process_frame(front_frame, hands_front)
 
                 # Draw hand points
-                front_frame = draw_functions.draw_hand_points(
-                    front_frame, front_hand_keypoints)
+                front_frame = draw_functions.draw_hand_points(front_frame, front_hand_keypoints_left)
+                front_frame = draw_functions.draw_hand_points(front_frame, front_hand_keypoints_right)
+
 
                 # convert and draw frame in pygame4
                 new_width = window_width // 2
                 new_height = window_height // 2
-                # draw_functions.draw_frame(screen=pygame_screen, frame=front_frame,
-                #                           top_left=np.array((0, new_height)),
-                #                           size=(new_width, new_height))
-                # draw_functions.draw_tabletop(pygame_screen, endpoint_positions[0], endpoint_positions[1], "blue", 4, top_left=np.array((0, new_height)), window_width=new_width, window_height=new_height)
-
+                draw_functions.draw_frame(screen=pygame_screen, frame=front_frame, 
+                                          top_left=(0, new_height),
+                                          size=(new_width, new_height))
+                draw_functions.draw_tabletop(pygame_screen, endpoint_positions[0], endpoint_positions[1], "blue", 4, 
+                                             top_left=(0, new_height), window_width=new_width, window_height=new_height)
+                
                 draw_functions.draw_soundbuttons(pygame_screen, all_soundbuttons, pygame.mouse.get_pos())
-
-
-            if top_cap.isOpened() and front_cap.isOpened() and len(top_hand_keypoints) > 0 and len(front_hand_keypoints) > 0:
-                # if top_cap.isOpened() and front_cap.isOpened() and len(top_hand_keypoints) > 0:
+                
+            if top_cap.isOpened() and front_cap.isOpened() and len(top_hand_keypoints_left) > 0 and len(front_hand_keypoints_left) > 0:
+            # if top_cap.isOpened() and front_cap.isOpened() and len(front_hand_keypoints) > 0:
                 # Filter for pressed fingers
-                pressed_fingers = instrument_front.get_pressed_fingers(
-                    front_hand_keypoints)
+                pressed_fingers_left = instrument_front.get_pressed_fingers(front_hand_keypoints_left, top_hand_keypoints_left)
+                pressed_fingers_right = instrument_front.get_pressed_fingers(front_hand_keypoints_right, top_hand_keypoints_right)
+                pressed_fingers = pressed_fingers_left + pressed_fingers_right
 
                 # Get playing notes
                 playing_notes = instrument_top.get_notes(
