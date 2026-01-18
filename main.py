@@ -129,7 +129,6 @@ def main():
 
     # detect window height and width
     window_width, window_height = pygame.display.get_surface().get_size()
-    display_width, display_height = window_width//2, window_height//2
 
     total_time = 0
     total_frames = 0
@@ -186,7 +185,8 @@ def main():
         # Draw pygame frame for each state
         if state == SELECT_PIANO and top_cap.isOpened():
             pygame_screen.fill((0, 0, 0))
-            draw_functions.draw_frame(screen=pygame_screen, frame=top_frame)
+            draw_functions.draw_frame(screen=pygame_screen, frame=top_frame,
+                                      top_left=(0, 0))
 
             # draw points to indicate corners
             draw_functions.draw_points(screen=pygame_screen,
@@ -195,7 +195,8 @@ def main():
 
         elif state == SELECT_TABLE and front_cap.isOpened():
             pygame_screen.fill((0, 0, 0))
-            draw_functions.draw_frame(screen=pygame_screen, frame=front_frame)
+            draw_functions.draw_frame(screen=pygame_screen, frame=front_frame,
+                                      top_left=(0, 0))
 
             draw_functions.draw_points(screen=pygame_screen,
                         point_list=endpoint_positions,
@@ -215,8 +216,8 @@ def main():
                 top_frame = draw_functions.draw_hand_points(top_frame, top_hand_keypoints)
 
                 # convert and draw frame in pygame4
-                draw_functions.draw_frame(screen=pygame_screen, frame=top_frame, x=0, y=0,
-                                          width=display_width, height=display_height)
+                draw_functions.draw_frame(screen=pygame_screen, frame=top_frame, 
+                                          top_left=(0, 0), size=(window_width//2, window_height//2))
 
             # Process front camera
             if front_cap.isOpened():
@@ -234,8 +235,8 @@ def main():
 
                 # convert and draw frame in pygame4
                 draw_functions.draw_frame(screen=pygame_screen, frame=front_frame, 
-                                          x = display_width, y = display_height,
-                                          width=display_width, height=display_height)
+                                          top_left=(0, window_height//2),
+                                          size=(window_width//2, window_height//2))
                 
             if top_cap.isOpened() and front_cap.isOpened() and len(top_hand_keypoints) > 0 and len(front_hand_keypoints) > 0:
                 # Filter for pressed fingers
