@@ -57,11 +57,11 @@ def process_frame(frame, hand_model):
             pinky = hand_landmarks.landmark[20]
 
             # Unnormalize hand points
-            hand_keypoints.append([thumb.x * width, thumb.y * height])
-            hand_keypoints.append([index.x * width, index.y * height])
-            hand_keypoints.append([middle.x * width, middle.y * height])
-            hand_keypoints.append([ring.x * width, ring.y * height])
-            hand_keypoints.append([pinky.x * width, pinky.y * height])
+            hand_keypoints.append([thumb.x, thumb.y])
+            hand_keypoints.append([index.x, index.y])
+            hand_keypoints.append([middle.x, middle.y])
+            hand_keypoints.append([ring.x, ring.y])
+            hand_keypoints.append([pinky.x, pinky.y])
 
     return hand_keypoints
 
@@ -116,7 +116,7 @@ def main():
     hands_top, hands_front = initialize_mediapipe_hands(2)
 
     # Initialize the camera.
-    top_cap = video.Video(0)
+    top_cap = video.Video(1)
     front_cap = video.Video(0)
 
     # Initialize instruments
@@ -150,11 +150,15 @@ def main():
                 running = False
             # check for mouse left click
             if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1):
+                # Normalize clicked position
+                clicked_position = np.array([event.pos[0] / window_size[0], event.pos[1] / window_size[1]])
+
                 # draw piano corner points
                 if state == SELECT_PIANO:
                     # 4 corners not clicked yet -> add corner
                     if len(corner_positions) <= 3:
-                        corner_positions.append(np.array(event.pos))
+                        print("CLICKED POSITION", clicked_position)
+                        corner_positions.append(clicked_position)
                     # 4 corners clicked -> confirm
                     elif len(corner_positions) == 4:
                         state = SELECT_TABLE
@@ -166,7 +170,7 @@ def main():
                 elif state == SELECT_TABLE:
                     # 2 endpoints not clicked yet -> add endpoint
                     if len(endpoint_positions) <= 1:
-                        endpoint_positions.append(np.array(event.pos))
+                        endpoint_positions.append(clicked_position)
                     # 2 endpoints clicked -> confirm
                     elif len(endpoint_positions) == 2:
                         # UPDATE INSTRUMENT_FRONT KEYPOINTS HERE
@@ -219,11 +223,8 @@ def main():
                 top_frame = draw_functions.draw_hand_points(top_frame, top_hand_keypoints)
 
                 # convert and draw frame in pygame4
-                draw_functions.draw_frame(screen=pygame_screen, frame=top_frame, 
-                                          size=(window_size//2))
-                
-                # draw outline of piano
-                
+                # draw_functions.draw_frame(screen=pygame_screen, frame=top_frame, 
+                #                           top_left=(0, 0), size=(window_width//2, window_height//2))
 
             # Process front camera
             if front_cap.isOpened():
@@ -238,21 +239,26 @@ def main():
                 # Draw hand points
                 front_frame = draw_functions.draw_hand_points(front_frame, front_hand_keypoints)
 
+                # cv2.line(front_frame, endpoint_positions[0], endpoint_positions[1], (0, 255, 0), 3)
+
 
                 # convert and draw frame in pygame4
-                draw_functions.draw_frame(screen=pygame_screen, frame=front_frame, 
-                                          top_left=np.array((0, window_size[1]//2)),
-                                          size=(window_size//2))
+                draw_functions.draw_frame(pygame_screen, front_frame, (0, 0))
+                # draw_functions.draw_frame(screen=pygame_screen, frame=front_frame, 
+                #                           top_left=(0, window_height//2),
+                #                           size=(window_width//2, window_height//2))
+                draw_functions.draw_tabletop(pygame_screen, endpoint_positions[0], endpoint_positions[1], "blue", 4)
                 
-            if top_cap.isOpened() and front_cap.isOpened() and len(top_hand_keypoints) > 0 and len(front_hand_keypoints) > 0:
+            # if top_cap.isOpened() and front_cap.isOpened() and len(top_hand_keypoints) > 0 and len(front_hand_keypoints) > 0:
+            if top_cap.isOpened() and front_cap.isOpened() and len(front_hand_keypoints) > 0:
                 # Filter for pressed fingers
                 pressed_fingers = instrument_front.get_pressed_fingers(front_hand_keypoints)
 
                 # Get playing notes
                 playing_notes = instrument_top.get_notes(pressed_fingers, white_key_tops, white_key_bases, black_key_tops, black_key_bases)
 
-                print(pressed_fingers)
-                print(corner_positions)
+                print("Pressed fingers:", pressed_fingers)
+                print("Corner positions", corner_positions)
                 print("Playing notes!", playing_notes)
                 print("----------------")
 

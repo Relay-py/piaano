@@ -138,6 +138,7 @@ class InstrumentFront():
                 
         # Calculate distance to the table line
         dist = distance_to_line(finger, self.table_endpoints[0], self.table_endpoints[1])
+        print("DIST", dist, finger)
 
         return dist <= threshold
     

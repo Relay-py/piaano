@@ -38,5 +38,5 @@ class Instrument:
         self.fs.noteoff(0, midi_note)
 
 
-    def is_playing(self, string_num: int) -> bool:
-        return self.notes[string_num] is not None
+    def is_playing(self, midi_note) -> bool:
+        return midi_note in self.current_notes

@@ -1,15 +1,20 @@
 import pygame
 import cv2
-<<<<<<< HEAD
 import random
-=======
 import numpy as np
->>>>>>> e873b20efe379217962dc2282d6d241fff7ba9cf
+
+
+def unnormalize_point(screen, point):
+    width, height = screen.get_size()
+    return (int(point[0] * width), int(point[1] * height))
 
 
 def draw_hand_points(frame, hand_keypoints):
+    # Unnormalize points
+    h, w, _ = frame.shape
+
     for point in hand_keypoints:
-        x, y = int(point[0]), int(point[1])
+        x, y = int(point[0] * w), int(point[1] * h)
         cv2.circle(frame, (x, y), 3, (0, 0, 255), 3)
 
     return frame
@@ -37,7 +42,7 @@ def draw_frame(screen, frame, top_left=np.array((0, 0)), size=None):
     :param size: (width, height) to draw it at
     """
     # get frame info (height and width are supposed! to be switched this is correct)
-    frame_size = np.array(frame.shape[1], frame.shape[0])
+    frame_size = [frame.shape[1], frame.shape[0]]
     
     # get size of target area to display on (default is entire screen)
     if size is None:
@@ -47,7 +52,7 @@ def draw_frame(screen, frame, top_left=np.array((0, 0)), size=None):
 
     # find scaled size depending which aspect is bigger compared to target
     scale_factor = min(target_size[0]/frame_size[0], target_size[1]/frame_size[1])
-    new_frame_size = frame_size * scale_factor
+    new_frame_size = [int(frame_size[0] * scale_factor), int(frame_size[1] * scale_factor)]
 
     # resize if needed
     if new_frame_size != frame_size:
@@ -69,6 +74,9 @@ def draw_points(screen, point_list, colour):
     :param corners_saved: boolean
     """
     for corner in point_list:
+        # Unnormalize points
+        corner = unnormalize_point(screen, corner)
+
         pygame.draw.circle(surface=screen,
                            color=colour,
                            center=corner,
@@ -118,7 +126,7 @@ def draw_keys(screen, key_tops, key_bases, overlap, outline_colour, outline_widt
 
 
 def draw_tabletop(screen, left, right, outline_colour, outline_width,
-                  top_left=np.array((0, 0)), scale_factor = 1):
+                  top_left=np.array((0, 0))):
     """
     draw line for where table is being detected
     
@@ -128,11 +136,9 @@ def draw_tabletop(screen, left, right, outline_colour, outline_width,
     :param outline_colour: colour of key outline
     :param outline_colour: width of key outline
     :param top_left: top left of the frame that it should be drawn above
-    :param scale_factor: whether to resize or not
     """
-    # resize and move
-    new_left = left * scale_factor + top_left
-    new_right = right * scale_factor + top_left
+    left = unnormalize_point(screen, left)
+    right = unnormalize_point(screen, right)
 
     pygame.draw.line(surface=screen,
                      color=outline_colour,
