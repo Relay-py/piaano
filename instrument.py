@@ -1,5 +1,5 @@
 import fluidsynth
-from SoundButton import SoundButton
+from SoundButton2 import SoundButton
 
 
 class Instrument:
@@ -19,22 +19,62 @@ class Instrument:
         self.bank = initial_bank
         self.volume = volume
 
+    # def generate_soundbuttons(self, group_top_left, size, padding):
+    #     """
+    #     return list of buttons from the sounds in the soundfont
+    #     """
+    #     buttons = []
+    #     for b in range(2):
+    #         for p in range(5):
+    #             buttons.append(
+    #                 SoundButton(top_left=(group_top_left[0] + (size[0] + padding[0]) * b,
+    #                                       group_top_left[1] + (size[1] + padding[1]) * p),
+    #                             size=size,
+    #                             sound=(b, p),
+    #                             text=self.fs.sfpreset_name(self.sfid, b, p),
+    #                             colour="steelblue1"))
+    #     return buttons
     def generate_soundbuttons(self, group_top_left, size, padding):
         """
-        return list of buttons from the sounds in the soundfont
+        Creates a list of neon-styled buttons.
+        Assigns different colors based on the instrument bank.
         """
         buttons = []
-        for b in range(2):
-            for p in range(5):
-                buttons.append(
-                    SoundButton(top_left=(group_top_left[0] + (size[0] + padding[0]) * b,
-                                          group_top_left[1] + (size[1] + padding[1]) * p),
-                                size=size,
-                                sound=(b, p),
-                                text=self.fs.sfpreset_name(self.sfid, b, p),
-                                colour="steelblue1"))
-        return buttons
+        
+        # Color palette matching your Spark and RisingNote colors
+        # Bank 0: Pianos (Cyan)
+        # Bank 1: Synths/Others (Magenta)
+        bank_colors = {
+            0: (0, 220, 255),   # Cyan
+            1: (255, 100, 255), # Magenta
+            2: (0, 255, 150),   # Mint Green
+            3: (255, 255, 100)  # Yellow
+        }
 
+        for b in range(2):  # Loop through banks
+            # Pick the color for this specific bank
+            current_color = bank_colors.get(b, (200, 200, 200))
+            
+            for p in range(5):  # Loop through presets
+                # Calculate position
+                pos_x = group_top_left[0] + (size[0] + padding[0]) * b
+                pos_y = group_top_left[1] + (size[1] + padding[1]) * p
+                
+                # Fetch preset name from FluidSynth
+                preset_name = self.fs.sfpreset_name(self.sfid, b, p)
+                if not preset_name:
+                    preset_name = f"Bank {b} P {p}"
+
+                buttons.append(
+                    SoundButton(
+                        top_left=(pos_x, pos_y),
+                        size=size,
+                        sound=(b, p),
+                        text=preset_name,
+                        colour=current_color  # Pass the bank-specific color
+                    )
+                )
+        return buttons
 
     def start(self) -> None:
         """

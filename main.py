@@ -170,10 +170,12 @@ def main():
 
     # ------------- INIT SOUNDS ------------------
     piano = Instrument(os.path.join(".", "Soundfont.sf2"), 0, 0, 50)
-    all_soundbuttons = piano.generate_soundbuttons(group_top_left=(window_width // 2 + 100, 50),
-                                                  size=(150, 50),
-                                                  padding=(25, 10))
-
+    # The Instrument class now uses the new SoundButton logic
+    all_soundbuttons = piano.generate_soundbuttons(
+        group_top_left=(window_width // 2 + 100, 100),
+        size=(180, 50),
+        padding=(20, 15)
+    )
     piano.start()
 
     # --------------- EVENT LOOP ----------------
@@ -218,7 +220,6 @@ def main():
                     for button in all_soundbuttons:
                         if button.collides(event.pos):
                             piano.change_sound(button.sound)
-
 
         # Read top cap frame
         if top_cap.isOpened():
