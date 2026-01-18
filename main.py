@@ -8,6 +8,7 @@ import video
 import pygame
 from instrument_top import InstrumentTop
 from instrument_front import InstrumentFront
+from instrument import Instrument
 import draw_functions
 
 
@@ -89,8 +90,6 @@ def main():
     corner_colour = {True: "green", False: "red"}
 
     # keyboard points
-    instrument_top = InstrumentTop([], num_white_keys=7)
-    instrument_front = InstrumentFront([], [], table_distance_threshold=10)
     white_key_tops = []
     white_key_bases = []
     black_key_tops = []
@@ -118,6 +117,15 @@ def main():
     # Initialize the camera.
     top_cap = video.Video(1)
     front_cap = video.Video(0)
+
+    # Initialize instruments
+    instrument_top = InstrumentTop([], num_white_keys=7)
+    instrument_front = InstrumentFront([], [], table_distance_threshold=10)
+
+    soundfont_path = ""
+    piano = Instrument(soundfont_path=soundfont_path)
+    piano.start()
+
 
     # detect window height and width
     window_width, window_height = pygame.display.get_surface().get_size()
@@ -223,17 +231,24 @@ def main():
                 # Draw hand points
                 front_frame = draw_functions.draw_hand_points(front_frame, front_hand_keypoints)
 
-                # Filter for pressed fingers
-                pressed_fingers = instrument_front.get_pressed_fingers(front_hand_keypoints)
 
                 # convert and draw frame in pygame4
                 draw_functions.draw_frame(screen=pygame_screen, frame=front_frame, 
                                           x = display_width, y = display_height,
                                           width=display_width, height=display_height)
-        
-        # if not top_cap.isOpened() and not front_cap.isOpened():
-        if not top_cap.isOpened():
-            break
+                
+            if top_cap.isOpened() and front_cap.isOpened() and len(top_hand_keypoints) > 0 and len(front_hand_keypoints) > 0:
+                # Filter for pressed fingers
+                pressed_fingers = instrument_front.get_pressed_fingers(front_hand_keypoints)
+
+                # Get playing notes
+                playing_notes = instrument_top.get_notes(pressed_fingers, white_key_tops, white_key_bases, black_key_tops, black_key_bases)
+
+                print(pressed_fingers)
+                print(corner_positions)
+                print("Playing notes!", playing_notes)
+                print("----------------")
+
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -252,11 +267,13 @@ def main():
     print(1000 / average_time, "fps")
 
     top_cap.release()
-    # front_cap.release()
+    front_cap.release()
     cv2.destroyAllWindows()
 
     # uninit pygame or whatever
     pygame.quit()
+
+    piano.stop()
 
 
 if __name__ == "__main__":
