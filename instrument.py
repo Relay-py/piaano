@@ -34,8 +34,13 @@ class Instrument:
         if midi_note not in self.current_notes:
             return
         
-        self.current_notes()
+        self.current_notes.remove(midi_note)
         self.fs.noteoff(0, midi_note)
+
+
+    def remove_all_notes(self):
+        for i in range(30, 150):
+            self.remove_note(i)
 
 
     def is_playing(self, midi_note) -> bool:

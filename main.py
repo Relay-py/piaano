@@ -66,6 +66,25 @@ def process_frame(frame, hand_model):
     return hand_keypoints
 
 
+def play_notes(piano: Instrument, playing_notes) -> None:
+    """Plays notes on instrument
+    args:
+        violin: Intrument
+        playing_notes: set of playing notes
+
+    returns:
+        None
+    """
+
+    for i in range(50, 140):
+        if piano.is_playing(i):
+            if i not in playing_notes:
+                piano.remove_note(i)
+        else:
+            if i in playing_notes:
+                piano.add_note(i)
+
+
 # constants for states
 SELECT_PIANO = 0
 SELECT_TABLE = 1
@@ -264,17 +283,20 @@ def main():
 
                 # Get playing notes
                 playing_notes = instrument_top.get_notes(pressed_fingers, white_key_tops, white_key_bases, black_key_tops, black_key_bases)
+                playing_midi_notes = {instrument_top.index_to_midi(note) for note in playing_notes[0]}
 
                 print("Pressed fingers:", pressed_fingers)
                 print("Corner positions", corner_positions)
-                print("Playing notes!", playing_notes)
+                print("Playing notes!", playing_midi_notes)
                 print("----------------")
 
-
+                play_notes(piano, playing_midi_notes)
                 #set up all the smoke for curent playing notes 
                 for note_cordinate in playing_notes[1]:
                     for _ in range(30):
-                        particles.append(SmokeParticle(note_cordinate[0], note_cordinate[1]))
+                        particles.append(SmokeParticle(note_cordinate[0] * window_width // 2, note_cordinate[1] * window_height // 2))
+            else:
+                piano.remove_all_notes()
 
             # Update all particles and remove dead ones
             for p in particles[:]:

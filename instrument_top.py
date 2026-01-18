@@ -116,13 +116,16 @@ class InstrumentTop:
                 else:
                     high = mid - 1
 
-            # log(notes)
-
-        return notes , mid_cordinates_played_note
+        print(mid_cordinates_played_note, type(mid_cordinates_played_note))
+        return set(notes) , mid_cordinates_played_note
     
     
+    def index_to_midi(self, index):
+        """Assumes index 0 = lowest C
+        Makes lowest note = middle C (for now)
+        """
 
-
+        return index + 60
         
 
 
